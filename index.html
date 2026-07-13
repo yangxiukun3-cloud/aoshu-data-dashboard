@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>奥数数据分析中心</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="hero">
+    <div class="nav"><strong>奥数数据分析中心</strong><span>通用表格分析工具</span></div>
+    <div class="hero-copy">
+      <p class="eyebrow">MATHEMATICAL DATA LAB</p>
+      <h1>把 Excel 表格变成清楚的统计结果</h1>
+      <p>上传 Excel、CSV 或直接粘贴表格，可查看数据概况、数值分布、字段统计和前 100 行记录。</p>
+      <div class="badges"><span>本地处理</span><span>不上传原文件</span><span>手机适配</span></div>
+    </div>
+  </header>
+  <main>
+    <section class="panel input-panel">
+      <div class="section-head"><div><p class="step">步骤 1</p><h2>导入数据</h2></div><button id="loadDemo" class="ghost">加载示例</button></div>
+      <label class="upload">
+        <input id="fileInput" type="file" accept=".xlsx,.xls,.csv,text/csv">
+        <span>选择 Excel 或 CSV 文件</span>
+        <small>支持 .xlsx、.xls、.csv，文件只在当前浏览器中处理</small>
+      </label>
+      <div id="sheetBar" class="sheet-bar hidden">
+        <label for="sheetSelect">选择工作表</label>
+        <select id="sheetSelect"></select>
+        <span id="sheetInfo"></span>
+      </div>
+      <div class="or">或</div>
+      <textarea id="pasteInput" rows="7" placeholder="直接粘贴表格，例如：&#10;日期,分组,数值&#10;2026/7/1,A,18&#10;2026/7/2,B,25"></textarea>
+      <button id="analyze" class="primary">开始分析粘贴内容</button>
+      <p id="message" class="message">Excel 会自动识别前 10 行中最完整的一行作为字段标题。</p>
+    </section>
+    <section id="results" class="results hidden">
+      <div id="genericResultHead" class="section-head"><div><p class="step">步骤 2</p><h2>分析结果</h2></div><button id="exportReport" class="ghost">导出报告</button></div>
+      <div class="metrics">
+        <article><span>记录数</span><strong id="rowCount">0</strong></article>
+        <article><span>字段数</span><strong id="columnCount">0</strong></article>
+        <article><span>数值字段</span><strong id="numericCount">0</strong></article>
+        <article><span>完整率</span><strong id="completeRate">0%</strong></article>
+      </div>
+      <section id="historyDashboard" class="history-dashboard hidden">
+        <div class="story-intro">
+          <p class="eyebrow">2026 DATA STORY</p>
+          <h2>2026年四项历史累计</h2>
+          <p>四项数据依次向下展示，每项均保留期数、日期、结果、组合明细及累计变化。</p>
+          <div class="story-notice">仅展示已经产生结果的历史期数，未完成的当期数据不进入历史累计。</div>
+        </div>
+        <div id="historyStories" class="history-stories"></div>
+      </section>
+      <div class="grid">
+        <article class="panel chart-card"><div class="card-title"><h3>数值分布</h3><select id="numericField"></select></div><canvas id="chart" width="720" height="340"></canvas></article>
+        <article class="panel summary-card"><h3>字段统计</h3><div id="summary"></div></article>
+      </div>
+      <article class="panel table-card"><div class="card-title"><h3>数据预览</h3><span>最多显示前 100 行</span></div><div class="table-wrap"><table id="dataTable"></table></div></article>
+      <p class="disclaimer">本工具用于通用数学与数据统计，不提供任何现实交易、投注或收益决策建议。</p>
+    </section>
+  </main>
+  <footer>© 2026 奥数数据分析中心</footer>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
