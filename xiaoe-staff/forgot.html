@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>找回工作人员密码｜小额周转贷</title>
+<style>*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;background:linear-gradient(145deg,#ecf4ff,#f8fbff);color:#152033;min-height:100vh;display:grid;place-items:center;padding:24px}.card{width:min(430px,100%);background:#fff;border:1px solid #e4ebf5;border-radius:22px;padding:30px;box-shadow:0 24px 70px rgba(18,52,94,.13)}h1{margin:0 0 8px}.muted{color:#6c7889}.field{margin-top:14px}.field label{display:block;font-size:13px;color:#5b6677;margin-bottom:6px}.field input{width:100%;padding:12px;border:1px solid #d9e1ec;border-radius:10px;font:inherit}.btn{margin-top:16px;width:100%;border:0;border-radius:10px;padding:12px 14px;font:inherit;font-weight:700;background:#1769e0;color:#fff;cursor:pointer}.btn:disabled{opacity:.6}.msg{margin-top:12px;font-size:13px;white-space:pre-wrap}.err{color:#b42318}.ok{color:#087a4b}</style>
+</head>
+<body>
+<div class="card">
+<h1>找回工作人员密码</h1>
+<p class="muted">系统会向工作人员邮箱发送密码重置邮件。</p>
+<div class="field"><label>工作人员邮箱</label><input id="email" type="email" value="yangxiukun3@gmail.com" readonly></div>
+<button id="btn" class="btn">发送密码重置邮件</button>
+<div id="msg" class="msg"></div>
+</div>
+<script>
+(function(){
+'use strict';
+var AUTH='https://ep-broad-haze-aw0tk2ug.neonauth.c-12.us-east-1.aws.neon.tech/neondb/auth';
+var btn=document.getElementById('btn'),msg=document.getElementById('msg');
+btn.onclick=async function(){
+  btn.disabled=true;msg.className='msg';msg.textContent='正在发送…';
+  try{
+    var r=await fetch(AUTH+'/request-password-reset',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({email:'yangxiukun3@gmail.com',redirectTo:'https://yangxiukun3-cloud.github.io/aoshu-data-dashboard/xiaoe-staff/reset.html'})});
+    var t=await r.text(),b=null;try{b=t?JSON.parse(t):null}catch(e){b=t}
+    if(!r.ok)throw new Error((b&&((b.message)||(b.error&&b.error.message)||b.error))||t||('HTTP '+r.status));
+    msg.className='msg ok';msg.textContent='重置邮件请求已提交。请打开 yangxiukun3@gmail.com 邮箱，点击最新的密码重置链接。';
+  }catch(e){msg.className='msg err';msg.textContent='发送失败：'+(e&&e.message?e.message:e);}
+  finally{btn.disabled=false;}
+};
+})();
+</script>
+</body>
+</html>
