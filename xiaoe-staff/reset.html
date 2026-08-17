@@ -1,1 +1,43 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>工作人员密码重置</title><style>body{font-family:system-ui,-apple-system,"Microsoft YaHei",sans-serif;background:#f4f7fb;margin:0;padding:24px;color:#152033}.card{max-width:460px;margin:8vh auto;background:#fff;border:1px solid #e5ebf3;border-radius:18px;padding:24px;box-shadow:0 20px 50px rgba(20,40,80,.09)}h1{margin:0 0 8px}.muted{color:#6b7788;font-size:14px}.ok{color:#087a4b}.err{color:#b42318;white-space:pre-wrap}.field{margin-top:16px}.field label{display:block;margin-bottom:6px;font-size:13px}.field input{width:100%;box-sizing:border-box;padding:12px;border:1px solid #d7e0ec;border-radius:10px;font-size:16px}.btn{margin-top:16px;width:100%;padding:12px;border:0;border-radius:10px;background:#1769e0;color:#fff;font-weight:700;font-size:16px}.btn:disabled{opacity:.5}.box{margin-top:14px;padding:12px;border-radius:10px;background:#f7f9fc}.hidden{display:none}</style></head><body><div class="card"><h1>工作人员密码重置</h1><div class="muted">仅用于已存在的工作人员登录会话。不会创建新客户账号。</div><div id="state" class="box">正在检查当前后台会话…</div><div id="form" class="hidden"><div class="field"><label>工作人员账号</label><input id="email" readonly></div><div class="field"><label>新密码</label><input id="p1" type="password" autocomplete="new-password" placeholder="至少8位"></div><div class="field"><label>再次输入新密码</label><input id="p2" type="password" autocomplete="new-password" placeholder="再次输入"></div><button id="go" class="btn">确认重置密码</button><div id="msg" class="box hidden"></div></div></div><script>(function(){'use strict';var AUTH='https://ep-broad-haze-aw0tk2ug.neonauth.c-12.us-east-1.aws.neon.tech/neondb/auth';var DATA='https://ep-broad-haze-aw0tk2ug.apirest.c-12.us-east-1.aws.neon.tech/neondb/rest/v1';var S={jwt:null,user:null};function $(x){return document.getElementById(x)}function parse(t){try{return t?JSON.parse(t):null}catch(e){return t}}async function req(path,opt){opt=opt||{};var r=await fetch(AUTH+path,{method:opt.method||'GET',headers:Object.assign({'Content-Type':'application/json'},opt.headers||{}),body:opt.body,credentials:'include'});var text=await r.text(),b=parse(text);var h=r.headers.get('set-auth-jwt');if(h)S.jwt=h;var j=b&&((b.session&&b.session.access_token)||(b.data&&b.data.session&&b.data.session.access_token)||b.token||(b.data&&b.data.token));if(j)S.jwt=j;var u=b&&((b.user)||(b.data&&b.data.user)||(b.session&&b.session.user)||(b.data&&b.data.session&&b.data.session.user));if(u)S.user=u;if(!r.ok)throw new Error((b&&((b.message)||(b.error&&b.error.message)||b.error))||text||('HTTP '+r.status));return b}async function api(path){if(!S.jwt){try{var t=await req('/token');var j=t&&(t.token||(t.data&&t.data.token));if(j)S.jwt=j}catch(e){}}if(!S.jwt)throw new Error('当前浏览器没有可用后台登录会话');var r=await fetch(DATA+'/'+path,{headers:{Authorization:'Bearer '+S.jwt,Accept:'application/json'}});var text=await r.text(),b=parse(text);if(!r.ok)throw new Error((b&&((b.message)||(b.details)))||text||('HTTP '+r.status));return b}async function boot(){try{await req('/get-session');if(!S.user)throw new Error('没有检测到已登录的工作人员会话');var staff=await api('staff_users?select=auth_user_id,display_name,role_code,active&auth_user_id=eq.'+encodeURIComponent(S.user.id));if(!staff||!staff[0]||!staff[0].active)throw new Error('当前账号不是有效工作人员');$('state').textContent='已恢复工作人员会话，可以设置新密码。';$('state').className='box ok';$('email').value=S.user.email||'';$('form').classList.remove('hidden')}catch(e){$('state').textContent='无法恢复会话：'+e.message+'\n请回到后台登录页重新打开后再试。';$('state').className='box err'}}$('go').onclick=async function(){var p1=$('p1').value,p2=$('p2').value,m=$('msg');m.classList.remove('hidden');if(p1.length<8){m.textContent='新密码至少8位';m.className='box err';return}if(p1!==p2){m.textContent='两次密码不一致';m.className='box err';return}this.disabled=true;try{await req('/admin/set-user-password',{method:'POST',body:JSON.stringify({userId:S.user.id,newPassword:p1})});m.textContent='密码已重置成功。现在可返回工作人员后台，用新密码登录。';m.className='box ok'}catch(e){m.textContent='重置失败：'+e.message;m.className='box err'}finally{this.disabled=false}};boot()})();</script></body></html>
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>重置工作人员密码｜小额周转贷</title>
+<style>*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;background:linear-gradient(145deg,#ecf4ff,#f8fbff);color:#152033;min-height:100vh;display:grid;place-items:center;padding:24px}.card{width:min(430px,100%);background:#fff;border:1px solid #e4ebf5;border-radius:22px;padding:30px;box-shadow:0 24px 70px rgba(18,52,94,.13)}h1{margin:0 0 8px}.muted{color:#6c7889}.field{margin-top:14px}.field label{display:block;font-size:13px;color:#5b6677;margin-bottom:6px}.field input{width:100%;padding:12px;border:1px solid #d9e1ec;border-radius:10px;font:inherit}.btn{margin-top:16px;width:100%;border:0;border-radius:10px;padding:12px 14px;font:inherit;font-weight:700;background:#1769e0;color:#fff;cursor:pointer}.msg{margin-top:12px;font-size:13px;white-space:pre-wrap}.err{color:#b42318}.ok{color:#087a4b}</style>
+</head>
+<body>
+<div class="card">
+<h1>重置工作人员密码</h1>
+<p class="muted">小额周转贷工作人员后台</p>
+<div class="field"><label>新密码</label><input id="p1" type="password" autocomplete="new-password" placeholder="至少8位"></div>
+<div class="field"><label>再次输入新密码</label><input id="p2" type="password" autocomplete="new-password" placeholder="再次输入"></div>
+<button id="btn" class="btn">确认重置密码</button>
+<div id="msg" class="msg"></div>
+</div>
+<script>
+(function(){
+'use strict';
+var AUTH='https://ep-broad-haze-aw0tk2ug.neonauth.c-12.us-east-1.aws.neon.tech/neondb/auth';
+var token=new URLSearchParams(location.search).get('token');
+var msg=document.getElementById('msg');
+if(!token){msg.className='msg err';msg.textContent='重置链接无效或缺少 token，请重新申请密码重置邮件。';}
+document.getElementById('btn').onclick=async function(){
+  var p1=document.getElementById('p1').value,p2=document.getElementById('p2').value;
+  if(!token)return;
+  if(p1.length<8){msg.className='msg err';msg.textContent='新密码至少8位。';return}
+  if(p1!==p2){msg.className='msg err';msg.textContent='两次输入的密码不一致。';return}
+  msg.className='msg';msg.textContent='正在重置…';
+  try{
+    var r=await fetch(AUTH+'/reset-password',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({newPassword:p1,token:token})});
+    var t=await r.text(),b=null;try{b=t?JSON.parse(t):null}catch(e){b=t}
+    if(!r.ok)throw new Error((b&&((b.message)||(b.error&&b.error.message)||b.error))||t||('HTTP '+r.status));
+    msg.className='msg ok';msg.textContent='密码已重置成功。正在返回后台登录页…';
+    setTimeout(function(){location.href='./'},1500);
+  }catch(e){msg.className='msg err';msg.textContent='重置失败：'+(e&&e.message?e.message:e);}
+};
+})();
+</script>
+</body>
+</html>
