@@ -1,0 +1,42 @@
+name: Patch staff recycle bin
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'scripts/patch_staff_recycle_bin.py'
+      - 'builds/trigger-staff-recycle-bin.txt'
+      - '.github/workflows/patch-staff-recycle-bin.yml'
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch staff backend
+        run: python3 scripts/patch_staff_recycle_bin.py
+      - name: Verify recycle bin markers
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'data-page="trash"' xiaoe-staff/index.html
+          grep -q 'id="trashRows"' xiaoe-staff/index.html
+          grep -q '下载保存' xiaoe-staff/index.html
+          grep -q '移入回收站' xiaoe-staff/index.html
+          grep -q '永久删除' xiaoe-staff/index.html
+          grep -q 'trashed_at' xiaoe-staff/index.html
+          grep -q 'v7.1.3 · 回收站' xiaoe-staff/index.html
+      - name: Commit patched backend
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add xiaoe-staff/index.html
+          if ! git diff --cached --quiet; then
+            git commit -m "add staff application recycle bin [skip ci]"
+            git push origin HEAD:main
+          fi
