@@ -1,0 +1,30 @@
+name: Patch staff realtime applications
+
+on:
+  push:
+    paths:
+      - 'xiaoe-staff/realtime-applications-trigger.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch staff application list realtime refresh
+        run: python3 xiaoe-staff/patch_realtime_applications.py
+      - name: Commit patched staff page
+        shell: bash
+        run: |
+          set -e
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add xiaoe-staff/index.html
+          if git diff --cached --quiet; then
+            echo 'No changes'
+            exit 0
+          fi
+          git commit -m 'add 1s realtime refresh to staff application list [skip ci]'
+          git push
