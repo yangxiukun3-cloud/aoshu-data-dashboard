@@ -1,21 +1,19 @@
 from pathlib import Path
+import re
 
 p = Path('xiaoe-staff/index.html')
 s = p.read_text(encoding='utf-8')
 
-if 'async function pollApplications()' in s:
-    print('Realtime application polling already present; no change needed.')
-    raise SystemExit(0)
-
 marker = 'async function refreshCurrent(){'
 timer_marker = 'setInterval(pollSupport,1000);'
 
-if marker not in s:
-    raise SystemExit('refreshCurrent marker not found')
-if timer_marker not in s:
-    raise SystemExit('pollSupport timer marker not found')
+if 'async function pollApplications()' not in s:
+    if marker not in s:
+        raise SystemExit('refreshCurrent marker not found')
+    if timer_marker not in s:
+        raise SystemExit('pollSupport timer marker not found')
 
-patch = r'''var applicationPolling=false;
+    patch = r'''var applicationPolling=false;
 async function pollApplications(){
   if(!S.user||applicationPolling||document.hidden)return;
   if(S.current!=='applications'&&S.current!=='dashboard')return;
@@ -50,12 +48,13 @@ async function pollApplications(){
 }
 '''
 
-s = s.replace(marker, patch + marker, 1)
-s = s.replace(
-    timer_marker,
-    timer_marker + "\nsetInterval(pollApplications,1000);\ndocument.addEventListener('visibilitychange',function(){if(!document.hidden)pollApplications()});\nwindow.addEventListener('focus',pollApplications);",
-    1,
-)
+    s = s.replace(marker, patch + marker, 1)
+    s = s.replace(
+        timer_marker,
+        timer_marker + "\nsetInterval(pollApplications,1000);\ndocument.addEventListener('visibilitychange',function(){if(!document.hidden)pollApplications()});\nwindow.addEventListener('focus',pollApplications);",
+        1,
+    )
+
 s = s.replace('小额周转贷 · v7.1.3', '小额周转贷 · v7.1.4', 1)
 s = s.replace(
     'v7.1.3 · 回收站 · 1秒客服刷新 · GitHub Pages',
@@ -63,5 +62,11 @@ s = s.replace(
     1,
 )
 
+# Always touch the actual page so GitHub Pages gets a fresh deploy instead of serving an old cached build.
+deploy_marker = '<!--staff-realtime-applications-deploy:20260818-1010-->'
+s = re.sub(r'<!--staff-realtime-applications-deploy:[^>]*-->', deploy_marker, s)
+if deploy_marker not in s:
+    s = s.replace('</body>', deploy_marker + '\n</body>', 1)
+
 p.write_text(s, encoding='utf-8')
-print('Patched staff application list with safe 1s realtime polling.')
+print('Staff v7.1.4 realtime application polling is present and page deploy marker refreshed.')
