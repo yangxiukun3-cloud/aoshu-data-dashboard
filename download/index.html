@@ -6,20 +6,32 @@
 <meta name="robots" content="noindex,nofollow">
 <title>小额周转贷 Android 下载</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f5f7fb;color:#16243a;font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif}.wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}.card{width:min(520px,100%);background:#fff;border:1px solid #e4eaf2;border-radius:22px;padding:28px;box-shadow:0 18px 50px rgba(24,52,86,.10)}.logo{width:64px;height:64px;border-radius:18px;background:#1769e0;color:#fff;display:grid;place-items:center;font-size:26px;font-weight:900;margin-bottom:18px}h1{font-size:25px;margin:0 0 8px}.sub{color:#64748b;line-height:1.65}.meta{margin:20px 0;padding:14px 16px;border-radius:14px;background:#f7f9fc;display:grid;grid-template-columns:1fr 1fr;gap:12px}.meta span{display:block;font-size:12px;color:#7b8796}.meta b{display:block;margin-top:3px;font-size:14px}.btn{display:block;width:100%;border:0;border-radius:13px;background:#1769e0;color:#fff;text-align:center;text-decoration:none;padding:15px 18px;font-size:17px;font-weight:900}.tip{margin-top:18px;color:#66778c;font-size:13px;line-height:1.75}.hash{margin-top:14px;padding:10px 12px;border-radius:10px;background:#eef9f3;color:#236649;font-size:11px;word-break:break-all}.small{font-size:11px;color:#94a0ad;margin-top:12px}
+*{box-sizing:border-box}body{margin:0;background:#f5f7fb;color:#16243a;font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif}.wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}.card{width:min(520px,100%);background:#fff;border:1px solid #e4eaf2;border-radius:22px;padding:28px;box-shadow:0 18px 50px rgba(24,52,86,.10)}.logo{width:64px;height:64px;border-radius:18px;background:#1769e0;color:#fff;display:grid;place-items:center;font-size:26px;font-weight:900;margin-bottom:18px}h1{font-size:25px;margin:0 0 8px}.sub{color:#64748b;line-height:1.65}.meta{margin:20px 0;padding:14px 16px;border-radius:14px;background:#f7f9fc;display:grid;grid-template-columns:1fr 1fr;gap:12px}.meta span{display:block;font-size:12px;color:#7b8796}.meta b{display:block;margin-top:3px;font-size:14px}.btn{display:block;width:100%;border:0;border-radius:13px;background:#1769e0;color:#fff;text-align:center;text-decoration:none;padding:15px 18px;font-size:17px;font-weight:900;cursor:pointer}.btn.secondary{margin-top:10px;background:#eef4ff;color:#175cd3;border:1px solid #d6e5ff}.tip{margin-top:18px;color:#66778c;font-size:13px;line-height:1.75}.notice{margin-top:14px;padding:12px 14px;border-radius:12px;background:#fff8e8;color:#81530a;border:1px solid #f4d79b;font-size:13px;line-height:1.65}.hash{margin-top:14px;padding:10px 12px;border-radius:10px;background:#eef9f3;color:#236649;font-size:11px;word-break:break-all}.small{font-size:11px;color:#94a0ad;margin-top:12px}.hidden{display:none}
 </style>
 </head>
 <body>
 <div class="wrap"><main class="card">
 <div class="logo">贷</div>
 <h1>小额周转贷 Android 版</h1>
-<div class="sub">正式安装包正在准备下载。若浏览器没有自动开始下载，请点击下面按钮。</div>
+<div class="sub">正式安装包。请点击下方按钮开始下载，不再自动跳转，避免部分手机内置浏览器直接拦截页面。</div>
 <div class="meta"><div><span>正式版本</span><b>v7.1.12R</b></div><div><span>安装包大小</span><b>约 1.56 MB</b></div><div><span>系统要求</span><b>Android 6.0+</b></div><div><span>发布类型</span><b>Release</b></div></div>
-<a class="btn" href="./xiaoe-loan.apk" download>立即下载 Android 版</a>
+<a id="downloadBtn" class="btn" href="./xiaoe-loan.apk?v=7.1.12R">立即下载 Android 版</a>
+<button id="copyBtn" class="btn secondary" type="button">复制直接下载链接</button>
+<div id="embeddedTip" class="notice hidden">如果你是在微信、QQ或其他应用内置浏览器中打开，下载可能被该应用拦截。请点击右上角菜单选择“在浏览器打开”，或复制下载链接后用手机系统浏览器访问。</div>
 <div class="tip">下载完成后，Android 会显示安装确认。首次通过浏览器安装时，部分手机会要求允许该浏览器“安装未知应用”，按手机系统提示确认后即可继续安装。</div>
 <div class="hash">SHA-256：dc138319f4a609143219b381687d934ffb2e3f054c2a7273849fbee24fee7fb1</div>
 <div class="small">本页面仅提供 Android 正式安装包下载。</div>
 </main></div>
-<script>setTimeout(function(){location.href='./xiaoe-loan.apk?v=7.1.12R'},900);</script>
+<script>
+(function(){
+  var ua=navigator.userAgent||'';
+  if(/MicroMessenger|QQ\//i.test(ua)) document.getElementById('embeddedTip').classList.remove('hidden');
+  document.getElementById('copyBtn').onclick=async function(){
+    var u=new URL('./xiaoe-loan.apk?v=7.1.12R',location.href).href;
+    try{await navigator.clipboard.writeText(u);this.textContent='已复制下载链接';}
+    catch(e){prompt('请复制下面下载链接',u);}
+  };
+})();
+</script>
 </body>
 </html>
