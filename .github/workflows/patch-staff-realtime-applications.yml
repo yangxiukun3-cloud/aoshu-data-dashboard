@@ -26,5 +26,5 @@ jobs:
             echo 'No changes'
             exit 0
           fi
-          git commit -m 'add 1s realtime refresh to staff application list [skip ci]'
+          git commit -m 'deploy staff v7.1.4 realtime application refresh'
           git push
