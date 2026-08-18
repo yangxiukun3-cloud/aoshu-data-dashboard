@@ -1,0 +1,51 @@
+name: Publish formal APK
+
+on:
+  push:
+    paths:
+      - 'download/release-trigger.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download verified formal release artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 'https://sdmntprnznorth.oaiusercontent.com/files/00000000-72d4-820b-900c-4795fde3351a/raw?se=2026-08-18T03%3A24%3A34Z&sp=r&sv=2026-02-06&sr=b&scid=e12be820-a1ce-5c35-8c89-3c07f16e7f8c&skoid=d5627e4c-566b-4761-a954-54993b0ed17b&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-08-17T23%3A10%3A24Z&ske=2026-08-18T23%3A10%3A24Z&sks=b&skv=2026-02-06&sig=JQc07Z9N2EaHjFgZIfIb3VpaSMlw348Rt4m03RcTpWs%3D' -o /tmp/formal-release.zip
+          rm -rf /tmp/formal-release
+          mkdir -p /tmp/formal-release
+          unzip -q /tmp/formal-release.zip -d /tmp/formal-release
+          APK="$(find /tmp/formal-release -type f -name '*.apk' | head -1)"
+          test -n "$APK"
+          ACTUAL="$(sha256sum "$APK" | awk '{print $1}')"
+          EXPECTED='dc138319f4a609143219b381687d934ffb2e3f054c2a7273849fbee24fee7fb1'
+          test "$ACTUAL" = "$EXPECTED"
+          mkdir -p download
+          cp "$APK" download/xiaoe-loan.apk
+          cp "$APK" download/xiaoe-loan-v7.1.12R.apk
+          printf '%s  %s\n' "$ACTUAL" 'xiaoe-loan-v7.1.12R.apk' > download/xiaoe-loan-v7.1.12R.sha256
+          printf '{"version":"7.1.12R","versionCode":71212,"sha256":"%s","apk":"xiaoe-loan.apk"}\n' "$ACTUAL" > download/release.json
+          unzip -t download/xiaoe-loan.apk >/dev/null
+          echo "APK verified: $ACTUAL"
+
+      - name: Commit formal APK to GitHub Pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add download/xiaoe-loan.apk download/xiaoe-loan-v7.1.12R.apk download/xiaoe-loan-v7.1.12R.sha256 download/release.json
+          if git diff --cached --quiet; then
+            echo 'Formal APK is already current'
+            exit 0
+          fi
+          git commit -m 'publish v7.1.12R formal Android APK [skip ci]'
+          git push origin HEAD:main
