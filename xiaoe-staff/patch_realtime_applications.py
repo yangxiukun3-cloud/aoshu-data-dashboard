@@ -1,19 +1,26 @@
 from pathlib import Path
 import re
+import subprocess
+import tempfile
 
-p = Path('xiaoe-staff/index.html')
-s = p.read_text(encoding='utf-8')
+BASE_COMMIT = '23ea8551a2218504b3d8a9d5ef0881bebbf1778d'
+TARGET = Path('xiaoe-staff/index.html')
+
+# Rebuild from the last known-good v7.1.3 staff page so login/auth behavior stays unchanged.
+s = subprocess.check_output(
+    ['git', 'show', f'{BASE_COMMIT}:xiaoe-staff/index.html'],
+    text=True,
+    encoding='utf-8'
+)
 
 marker = 'async function refreshCurrent(){'
 timer_marker = 'setInterval(pollSupport,1000);'
+if marker not in s:
+    raise SystemExit('refreshCurrent marker not found in known-good base')
+if timer_marker not in s:
+    raise SystemExit('pollSupport timer marker not found in known-good base')
 
-if 'async function pollApplications()' not in s:
-    if marker not in s:
-        raise SystemExit('refreshCurrent marker not found')
-    if timer_marker not in s:
-        raise SystemExit('pollSupport timer marker not found')
-
-    patch = r'''var applicationPolling=false;
+patch = r'''var applicationPolling=false;
 async function pollApplications(){
   if(!S.user||applicationPolling||document.hidden)return;
   if(S.current!=='applications'&&S.current!=='dashboard')return;
@@ -48,25 +55,28 @@ async function pollApplications(){
 }
 '''
 
-    s = s.replace(marker, patch + marker, 1)
-    s = s.replace(
-        timer_marker,
-        timer_marker + "\nsetInterval(pollApplications,1000);\ndocument.addEventListener('visibilitychange',function(){if(!document.hidden)pollApplications()});\nwindow.addEventListener('focus',pollApplications);",
-        1,
-    )
-
+s = s.replace(marker, patch + marker, 1)
+s = s.replace(
+    timer_marker,
+    timer_marker + "\nsetInterval(pollApplications,1000);\ndocument.addEventListener('visibilitychange',function(){if(!document.hidden)pollApplications()});\nwindow.addEventListener('focus',pollApplications);",
+    1,
+)
 s = s.replace('小额周转贷 · v7.1.3', '小额周转贷 · v7.1.4', 1)
 s = s.replace(
     'v7.1.3 · 回收站 · 1秒客服刷新 · GitHub Pages',
     'v7.1.4 · 回收站 · 1秒申请刷新 · 1秒客服刷新 · GitHub Pages',
     1,
 )
+s = s.replace('</body>', '<!--staff-v714-known-good-login-rebuild:20260818-1016-->\n</body>', 1)
 
-# Always touch the actual page so GitHub Pages gets a fresh deploy instead of serving an old cached build.
-deploy_marker = '<!--staff-realtime-applications-deploy:20260818-1010-->'
-s = re.sub(r'<!--staff-realtime-applications-deploy:[^>]*-->', deploy_marker, s)
-if deploy_marker not in s:
-    s = s.replace('</body>', deploy_marker + '\n</body>', 1)
+# Validate the exact inline JavaScript before the live staff page can be replaced.
+m = re.search(r'<script>([\s\S]*?)</script>', s)
+if not m:
+    raise SystemExit('main inline script not found')
+with tempfile.NamedTemporaryFile('w', suffix='.js', encoding='utf-8', delete=False) as f:
+    f.write(m.group(1))
+    js_path = f.name
+subprocess.run(['node', '--check', js_path], check=True)
 
-p.write_text(s, encoding='utf-8')
-print('Staff v7.1.4 realtime application polling is present and page deploy marker refreshed.')
+TARGET.write_text(s, encoding='utf-8')
+print('Rebuilt v7.1.4 from known-good v7.1.3; login code preserved; JS syntax check passed.')
