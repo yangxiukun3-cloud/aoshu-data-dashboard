@@ -6,7 +6,8 @@ import tempfile
 BASE_COMMIT = '23ea8551a2218504b3d8a9d5ef0881bebbf1778d'
 TARGET = Path('xiaoe-staff/index.html')
 
-# Rebuild from the last known-good v7.1.3 staff page so login/auth behavior stays unchanged.
+# Always rebuild from the last confirmed-working v7.1.3 page.
+# This preserves the original login/auth flow and adds only safe application polling.
 s = subprocess.check_output(
     ['git', 'show', f'{BASE_COMMIT}:xiaoe-staff/index.html'],
     text=True,
@@ -67,9 +68,12 @@ s = s.replace(
     'v7.1.4 · 回收站 · 1秒申请刷新 · 1秒客服刷新 · GitHub Pages',
     1,
 )
-s = s.replace('</body>', '<!--staff-v714-known-good-login-rebuild:20260818-1016-->\n</body>', 1)
 
-# Validate the exact inline JavaScript before the live staff page can be replaced.
+# Never inject deployment markers by searching for the first </body> token:
+# the page contains '</body>' text inside the export HTML JavaScript string.
+# A previous version did that and broke the entire inline script/login button.
+
+# Validate the exact main inline JavaScript before replacing the live page.
 m = re.search(r'<script>([\s\S]*?)</script>', s)
 if not m:
     raise SystemExit('main inline script not found')
@@ -79,4 +83,4 @@ with tempfile.NamedTemporaryFile('w', suffix='.js', encoding='utf-8', delete=Fal
 subprocess.run(['node', '--check', js_path], check=True)
 
 TARGET.write_text(s, encoding='utf-8')
-print('Rebuilt v7.1.4 from known-good v7.1.3; login code preserved; JS syntax check passed.')
+print('Rebuilt v7.1.4 from known-good v7.1.3; login preserved; JS syntax passed.')
