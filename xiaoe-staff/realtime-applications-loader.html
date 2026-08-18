@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>小额周转贷｜工作人员后台</title><style>html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;background:#f3f6fb;color:#152033}.boot{min-height:100vh;display:grid;place-items:center}.card{background:#fff;border:1px solid #e4ebf5;border-radius:16px;padding:22px 26px;box-shadow:0 18px 50px rgba(18,52,94,.12)}.err{color:#b42318;white-space:pre-wrap}</style></head>
+<body><div class="boot"><div class="card" id="bootState">正在载入工作人员后台…</div></div>
+<script>
+(async function(){
+'use strict';
+try{
+  var r=await fetch('./index-v713-base.html?v=714',{cache:'no-store'});
+  if(!r.ok)throw new Error('基础后台读取失败 HTTP '+r.status);
+  var h=await r.text();
+  var marker='async function refreshCurrent(){';
+  var timerMarker='setInterval(pollSupport,1000);';
+  if(h.indexOf(marker)<0||h.indexOf(timerMarker)<0)throw new Error('后台版本结构不匹配，已停止自动补丁');
+  var patch="var applicationPolling=false;\nasync function pollApplications(){if(!S.user||applicationPolling||document.hidden)return;if(S.current!=='applications'&&S.current!=='dashboard')return;var drawer=$('drawer');if(drawer&&!drawer.classList.contains('hidden'))return;var ae=document.activeElement;if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName))return;applicationPolling=true;var y=window.scrollY||0,tw=document.querySelector('#applicationsPage .tablewrap'),sx=tw?tw.scrollLeft:0,sy=tw?tw.scrollTop:0,before={};S.apps.forEach(function(a){before[String(a.id)]=1});try{await loadCore();if(S.current==='applications')renderApplications();loadDashboard();var fresh=S.apps.filter(function(a){return !a.trashed_at&&!before[String(a.id)]});$('cloudState').textContent='真实云端实时同步 · '+new Date().toLocaleTimeString('zh-CN',{hour12:false});if(fresh.length)toast('收到新申请：'+fresh[0].application_no+(fresh.length>1?' 等'+fresh.length+'笔':''))}catch(e){console.warn('application realtime poll',e)}finally{requestAnimationFrame(function(){window.scrollTo(0,y);if(tw){tw.scrollLeft=sx;tw.scrollTop=sy}});applicationPolling=false}}\n";
+  h=h.replace('小额周转贷 · v7.1.3','小额周转贷 · v7.1.4');
+  h=h.replace('v7.1.3 · 回收站 · 1秒客服刷新 · GitHub Pages','v7.1.4 · 回收站 · 1秒申请刷新 · 1秒客服刷新 · GitHub Pages');
+  h=h.replace(marker,patch+marker);
+  h=h.replace(timerMarker,timerMarker+"\nsetInterval(pollApplications,1000);\ndocument.addEventListener('visibilitychange',function(){if(!document.hidden)pollApplications()});\nwindow.addEventListener('focus',pollApplications);");
+  document.open();document.write(h);document.close();
+}catch(e){document.getElementById('bootState').className='card err';document.getElementById('bootState').textContent='工作人员后台载入失败：'+e.message;}
+})();
+</script></body></html>
