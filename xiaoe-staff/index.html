@@ -8,8 +8,8 @@
 </style>
 </head>
 <body>
-<div id="login" class="login"><div class="login-card"><div class="logo">贷</div><h1 style="margin:0">工作人员后台</h1><p class="muted">小额周转贷 · v7.1.3</p><div class="field"><label>工作人员邮箱</label><input id="email" type="email" value="yangxiukun3@gmail.com" autocomplete="username"></div><div class="field"><label>密码</label><input id="password" type="password" autocomplete="current-password" placeholder="请输入工作人员密码"></div><button id="loginBtn" class="btn block" style="margin-top:16px">登录后台</button><div style="margin-top:10px"><a href="forgot.html">忘记密码</a></div><div id="loginErr" class="err"></div><div class="notice small">审核、授信、放款状态均由工作人员人工操作。本后台不进行自动信用评分、自动授信或自动放款。</div></div></div>
-<div id="app" class="shell hidden"><aside class="side"><div class="brand">小额周转贷后台<small id="staffName">工作人员</small></div><div class="nav"><button class="active" data-page="dashboard">仪表盘</button><button data-page="applications">申请审核</button><button data-page="trash">回收站 <span id="trashCount" class="nav-count hidden">0</span></button><button data-page="support">客服聊天 <span id="supportUnread" class="nav-count hidden">0</span></button><button data-page="sms">短信记录</button></div><div class="sidefoot"><button id="logoutBtn" class="btn secondary block">退出登录</button><div class="version">v7.1.3 · 回收站 · 1秒客服刷新 · GitHub Pages</div></div></aside><main class="main"><div class="top"><div><h2 id="pageTitle" style="margin:0">仪表盘</h2><div id="cloudState" class="statusline">正在连接真实云端…</div></div><div class="top-actions"><button id="refreshBtn" class="btn secondary">刷新</button></div></div>
+<div id="login" class="login"><div class="login-card"><div class="logo">贷</div><h1 style="margin:0">工作人员后台</h1><p class="muted">小额周转贷 · v7.1.4</p><div class="field"><label>工作人员邮箱</label><input id="email" type="email" value="yangxiukun3@gmail.com" autocomplete="username"></div><div class="field"><label>密码</label><input id="password" type="password" autocomplete="current-password" placeholder="请输入工作人员密码"></div><button id="loginBtn" class="btn block" style="margin-top:16px">登录后台</button><div style="margin-top:10px"><a href="forgot.html">忘记密码</a></div><div id="loginErr" class="err"></div><div class="notice small">审核、授信、放款状态均由工作人员人工操作。本后台不进行自动信用评分、自动授信或自动放款。</div></div></div>
+<div id="app" class="shell hidden"><aside class="side"><div class="brand">小额周转贷后台<small id="staffName">工作人员</small></div><div class="nav"><button class="active" data-page="dashboard">仪表盘</button><button data-page="applications">申请审核</button><button data-page="trash">回收站 <span id="trashCount" class="nav-count hidden">0</span></button><button data-page="support">客服聊天 <span id="supportUnread" class="nav-count hidden">0</span></button><button data-page="sms">短信记录</button></div><div class="sidefoot"><button id="logoutBtn" class="btn secondary block">退出登录</button><div class="version">v7.1.4 · 回收站 · 1秒申请刷新 · 1秒客服刷新 · GitHub Pages</div></div></aside><main class="main"><div class="top"><div><h2 id="pageTitle" style="margin:0">仪表盘</h2><div id="cloudState" class="statusline">正在连接真实云端…</div></div><div class="top-actions"><button id="refreshBtn" class="btn secondary">刷新</button></div></div>
 <section id="dashboardPage"><div class="cards"><div class="card"><div class="muted">全部申请</div><div id="mTotal" class="metric">-</div></div><div class="card"><div class="muted">待人工审核</div><div id="mPending" class="metric">-</div></div><div class="card"><div class="muted">已通过</div><div id="mPassed" class="metric">-</div></div><div class="card"><div class="muted">待打款/处理中</div><div id="mPayout" class="metric">-</div></div><div class="card"><div class="muted">客服未读</div><div id="mSupport" class="metric">-</div></div></div><div class="notice okbox">列表只读取申请号、金额、状态等轻量字段；图片、身份证资料和特色贷视频只在打开单笔申请时加载，避免触发接口单次响应上限。</div></section>
 <section id="applicationsPage" class="hidden"><div class="toolbar"><input id="q" placeholder="申请号 / 客户姓名 / 手机尾号"><select id="statusFilter"><option value="">全部审核状态</option><option>待人工审核</option><option>已通过</option><option>未通过</option></select><button id="searchBtn" class="btn">查询</button></div><div class="tablewrap"><table><thead><tr><th>申请号</th><th>客户</th><th>类型</th><th>申请金额</th><th>期限</th><th>审核状态</th><th>授信金额</th><th>贷款状态</th><th>打款状态</th><th>提交时间</th><th>操作</th></tr></thead><tbody id="appRows"></tbody></table></div></section>
 <section id="trashPage" class="hidden"><div class="notice">回收站中的申请已从客户 APP 隐藏。恢复后重新显示；永久删除不可撤销，且不会删除客户账号。</div><div class="tablewrap" style="margin-top:14px"><table><thead><tr><th>申请号</th><th>客户</th><th>申请金额</th><th>审核状态</th><th>移入时间</th><th>操作</th></tr></thead><tbody id="trashRows"></tbody></table></div></section>
@@ -74,9 +74,45 @@ function renderThreads(){var groups={};S.support.forEach(function(m){var k=convK
 async function openThread(k){S.threadKey=k;renderThreads();var parts=k.split('|'),cid=parts[0],aid=parts[1],c=S.customers[cid]||{},app=S.apps.find(function(a){return String(a.id)===aid});$('chatHead').textContent=(c.display_name||c.customer_key||('客户 '+cid))+' · '+(app?app.application_no:'未关联申请');$('replyBtn').disabled=false;var arr=S.support.filter(function(m){return convKey(m)===k}).sort(function(a,b){return new Date(a.created_at)-new Date(b.created_at)});$('chatMessages').innerHTML=arr.map(function(m){return '<div class="msg '+(m.sender_type==='staff'?'staff':'')+'">'+esc(m.content)+'<div class="msg-meta">'+(m.sender_type==='staff'?'工作人员':'客户')+' · '+esc(dt(m.created_at))+'</div></div>'}).join('')||'<div class="muted">暂无消息</div>';$('chatMessages').scrollTop=$('chatMessages').scrollHeight;var unread=arr.filter(function(m){return m.sender_type==='customer'&&!m.read_by_staff_at});if(unread.length){try{var path='support_messages?customer_id=eq.'+encodeURIComponent(cid)+'&sender_type=eq.customer&read_by_staff_at=is.null';path+=aid?'&application_id=eq.'+encodeURIComponent(aid):'&application_id=is.null';await api(path,{method:'PATCH',body:{read_by_staff_at:new Date().toISOString()}});unread.forEach(function(m){m.read_by_staff_at=new Date().toISOString()});updateSupportBadge();renderThreads()}catch(e){console.warn(e)}}}
 async function sendReply(){if(!S.threadKey)return;var text=$('replyText').value.trim();if(!text)return;var parts=S.threadKey.split('|'),cid=Number(parts[0]),aid=parts[1]?Number(parts[1]):null;try{$('replyBtn').disabled=true;var created=await api('support_messages',{method:'POST',body:{customer_id:cid,application_id:aid,sender_type:'staff',sender_auth_user_id:S.user.id,content:text}});$('replyText').value='';if(created&&created[0]){var row=created[0],exists=S.support.some(function(x){return String(x.id)===String(row.id)});if(!exists)S.support.push(row);S.lastSupportId=Math.max(S.lastSupportId,Number(row.id)||0);updateSupportBadge();renderThreads();await openThread(S.threadKey)}else{await pollSupport()}}catch(e){toast('客服回复发送失败：'+e.message)}finally{$('replyBtn').disabled=false}}
 async function loadSms(silent){try{var rows=await api('sms_outbox?select=id,customer_id,application_id,event_code,template_code,status,provider_request_id,retry_count,last_error,scheduled_at,sent_at,created_at&order=created_at.desc&limit=500');if(!silent){$('smsRows').innerHTML=(rows||[]).map(function(x){var a=S.apps.find(function(z){return String(z.id)===String(x.application_id)}),c=a?S.customers[String(a.customer_id)]||{}:{};return '<tr><td>'+dt(x.scheduled_at||x.created_at)+'</td><td>'+esc(a?a.application_no:'—')+'</td><td>'+esc(c.display_name||c.customer_key||'—')+'</td><td>'+esc(x.event_code)+'</td><td>'+esc(x.template_code)+'</td><td><span class="badge">'+esc(x.status)+'</span></td><td class="small">'+esc(x.last_error||'')+'</td></tr>'}).join('')||'<tr><td colspan="7" class="muted">暂无短信记录</td></tr>'}return rows||[]}catch(e){if(!silent)toast('短信记录加载失败：'+e.message);return []}}
+var applicationPolling=false;
+async function pollApplications(){
+  if(!S.user||applicationPolling||document.hidden)return;
+  if(S.current!=='applications'&&S.current!=='dashboard')return;
+  var drawer=$('drawer');
+  if(drawer&&!drawer.classList.contains('hidden'))return;
+  var ae=document.activeElement;
+  if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName))return;
+
+  applicationPolling=true;
+  var y=window.scrollY||0;
+  var tw=document.querySelector('#applicationsPage .tablewrap');
+  var sx=tw?tw.scrollLeft:0,sy=tw?tw.scrollTop:0;
+  var before={};
+  S.apps.forEach(function(a){before[String(a.id)]=1});
+
+  try{
+    await loadCore();
+    if(S.current==='applications')renderApplications();
+    loadDashboard();
+    var fresh=S.apps.filter(function(a){return !a.trashed_at&&!before[String(a.id)]});
+    $('cloudState').textContent='真实云端实时同步 · '+new Date().toLocaleTimeString('zh-CN',{hour12:false});
+    if(fresh.length)toast('收到新申请：'+fresh[0].application_no+(fresh.length>1?' 等'+fresh.length+'笔':''));
+  }catch(e){
+    console.warn('application realtime poll',e);
+  }finally{
+    requestAnimationFrame(function(){
+      window.scrollTo(0,y);
+      if(tw){tw.scrollLeft=sx;tw.scrollTop=sy}
+    });
+    applicationPolling=false;
+  }
+}
 async function refreshCurrent(){await loadAll();if(S.current==='applications')renderApplications();if(S.current==='trash')renderTrash();if(S.current==='support')renderThreads();if(S.current==='sms')await loadSms(false)}
 $('loginBtn').onclick=login;$('password').onkeydown=function(e){if(e.key==='Enter')login()};$('logoutBtn').onclick=logout;$('refreshBtn').onclick=refreshCurrent;$('searchBtn').onclick=renderApplications;$('q').oninput=renderApplications;$('statusFilter').onchange=renderApplications;$('closeDrawerBtn').onclick=closeDrawer;$('exportBtn').onclick=exportApplication;$('replyBtn').onclick=sendReply;$('viewer').onclick=function(e){if(e.target===$('viewer')||e.target.tagName==='IMG')$('viewer').classList.add('hidden')};document.querySelectorAll('.nav button').forEach(function(b){b.onclick=function(){go(b.dataset.page)}});
 setInterval(pollSupport,1000);
+setInterval(pollApplications,1000);
+document.addEventListener('visibilitychange',function(){if(!document.hidden)pollApplications()});
+window.addEventListener('focus',pollApplications);
 renewSession().then(async function(){if(!S.user)return;try{var rows=await api('staff_users?select=*&auth_user_id=eq.'+encodeURIComponent(S.user.id));if(rows&&rows[0]&&rows[0].active===true){S.staff=rows[0];$('staffName').textContent=(S.staff.display_name||'工作人员')+' · '+(S.staff.role_code||'staff');$('login').classList.add('hidden');$('app').classList.remove('hidden');await loadAll()}}catch(e){}});
 })();
 </script></body></html>
