@@ -1,0 +1,45 @@
+name: Publish R2 APK to fixed download URL
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-r2-apk.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download verified R2 artifact
+        env:
+          ARTIFACT_URL: 'https://sdmntprseasia.oaiusercontent.com/files/00000000-e50c-8207-9bff-55f4f3788d0e/raw?se=2026-10-29T03%3A13%3A38Z&sp=r&sv=2026-02-06&sr=b&scid=07131113-1df8-5790-9288-618e73d56916&skoid=ca37c3ec-ab43-496e-be5f-4684c5519a26&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-10-28T10%3A47%3A34Z&ske=2026-10-29T10%3A47%3A34Z&sks=b&skv=2026-02-06&sig=OBaod39tE9HifxSeSJsff5mpyzVlQEGF40CXeMH%2Bvh8%3D'
+        run: |
+          set -euo pipefail
+          curl -L --fail --retry 3 "$ARTIFACT_URL" -o /tmp/r2.zip
+          rm -rf /tmp/r2 && mkdir -p /tmp/r2
+          unzip -q /tmp/r2.zip -d /tmp/r2
+          APK="$(find /tmp/r2 -maxdepth 2 -type f -name '*.apk' | head -n 1)"
+          test -n "$APK"
+          echo "b7d226b5927ab6e4958363ce4b1eb32aa77e408424fbb7c34cee87cdb365fb16  $APK" | sha256sum -c -
+          mkdir -p download
+          cp "$APK" download/xiaoe-loan.apk
+          cp "$APK" download/xiaoe-loan-v7.1.12R2.apk
+          printf '%s  %s\n' "b7d226b5927ab6e4958363ce4b1eb32aa77e408424fbb7c34cee87cdb365fb16" "xiaoe-loan-v7.1.12R2.apk" > download/xiaoe-loan-v7.1.12R2.sha256
+          printf '%s\n' '{"version":"7.1.12R2","versionCode":71213,"sha256":"b7d226b5927ab6e4958363ce4b1eb32aa77e408424fbb7c34cee87cdb365fb16","apk":"xiaoe-loan.apk"}' > download/release.json
+
+      - name: Publish fixed URL
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add download/xiaoe-loan.apk download/xiaoe-loan-v7.1.12R2.apk download/xiaoe-loan-v7.1.12R2.sha256 download/release.json
+          if git diff --cached --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+          git commit -m "Publish 小额易贷 v7.1.12R2 to fixed download URL"
+          git push
