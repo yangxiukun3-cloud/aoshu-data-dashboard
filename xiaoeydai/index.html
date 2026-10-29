@@ -88,13 +88,13 @@ h1{text-align:center;font-size:27px;margin:0;color:#153b75}
   }
 
   document.getElementById('browserBox').classList.remove('hidden');
-  fetch('../download/release.json?ts='+Date.now(),{cache:'no-store'})
+  fetch('https://yangxiukun3-cloud.github.io/aoshu-data-dashboard/download/release.json?ts='+Date.now(),{cache:'no-store'})
     .then(function(r){if(!r.ok)throw new Error('release');return r.json()})
     .then(function(m){
       if(!m||!m.apk||!/^[A-Za-z0-9._-]+$/.test(m.apk))throw new Error('meta');
       var version=String(m.version||'current').replace(/^v/i,'');
       ver.textContent='v'+version;
-      var apk=new URL('../download/'+m.apk,location.href).href+'?v='+encodeURIComponent(version);
+      var apk='https://yangxiukun3-cloud.github.io/aoshu-data-dashboard/download/'+m.apk+'?v='+encodeURIComponent(version);
       btn.href=apk;
       btn.classList.remove('hidden');
       document.getElementById('browserBox').innerHTML='<b>已进入可下载安装环境。</b><br>最新正式版已准备完成，正在自动开始下载。';
