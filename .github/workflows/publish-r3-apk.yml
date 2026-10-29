@@ -1,0 +1,40 @@
+name: Publish no-special-loan R3 APK
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-r3-apk.yml'
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download and verify R3
+        env:
+          ARTIFACT_URL: 'https://sdmntprindiasocentral.oaiusercontent.com/files/00000000-e818-8211-bf88-ffcd1bb8f82f/raw?se=2026-10-29T03%3A56%3A21Z&sp=r&sv=2026-02-06&sr=b&scid=7b5d129f-30d9-5350-b92d-ae4eda5820e8&skoid=ca37c3ec-ab43-496e-be5f-4684c5519a26&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-10-29T01%3A18%3A14Z&ske=2026-10-30T01%3A18%3A14Z&sks=b&skv=2026-02-06&sig=y8ZLpuhJafgDLnOnc6nS2ySYQi1Nl/dtFu/yOht%2BGFA%3D'
+        run: |
+          set -euo pipefail
+          curl -L --fail --retry 3 "$ARTIFACT_URL" -o /tmp/r3.zip
+          rm -rf /tmp/r3 && mkdir -p /tmp/r3
+          unzip -q /tmp/r3.zip -d /tmp/r3
+          APK="$(find /tmp/r3 -maxdepth 2 -type f -name '*.apk' | head -n 1)"
+          test -n "$APK"
+          echo "26725aa9cad271d3ad18b62d8400534d080e34a47b9925adaf3a9878fa38f534  $APK" | sha256sum -c -
+          unzip -p "$APK" assets/app.js | ! grep -E '特色贷|SPECIAL_LOAN|view-special|specialEntry|submitSpecialLoan'
+          unzip -p "$APK" assets/index.html | ! grep -E '特色贷|SPECIAL_LOAN|view-special|specialEntry|submitSpecialLoan'
+          mkdir -p download
+          cp "$APK" "download/小额易贷.apk"
+          cp "$APK" download/xiaoe-loan.apk
+          cp "$APK" download/xiaoe-loan-v7.1.12R3.apk
+          printf '%s  %s\n' "26725aa9cad271d3ad18b62d8400534d080e34a47b9925adaf3a9878fa38f534" "xiaoe-loan-v7.1.12R3.apk" > download/xiaoe-loan-v7.1.12R3.sha256
+          printf '%s\n' '{"version":"7.1.12R3","versionCode":71214,"sha256":"26725aa9cad271d3ad18b62d8400534d080e34a47b9925adaf3a9878fa38f534","apk":"小额易贷.apk"}' > download/release.json
+      - name: Publish
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "download/小额易贷.apk" download/xiaoe-loan.apk download/xiaoe-loan-v7.1.12R3.apk download/xiaoe-loan-v7.1.12R3.sha256 download/release.json
+          git commit -m "Publish 小额易贷 v7.1.12R3 without special loan"
+          git push
