@@ -1,4 +1,5 @@
 name: Publish Chinese APK filename
+# trigger branded filename publisher
 on:
   push:
     branches: [main]
