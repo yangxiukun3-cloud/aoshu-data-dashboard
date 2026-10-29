@@ -38,7 +38,7 @@ h1{text-align:center;font-size:27px;margin:0;color:#153b75}
 
   <div id="wxBox" class="status warn hidden">
     <b>当前正在微信 / QQ 内打开。</b><br>
-    微信会限制 APK 文件直接下载安装。请点击右上角 <b>“…”</b>，选择 <b>“在浏览器打开”</b> 或 <b>“用其他应用打开”</b>。进入手机浏览器后，本页面会自动开始下载。
+    微信会限制 APK 文件直接下载安装。请点击右上角 <b>“…”</b>，选择 <b>“在浏览器打开”</b> 或 <b>“用其他应用打开”</b>。进入手机浏览器后，本页面会保持显示并尝试自动下载；如未自动下载，请点击“立即下载小额易贷”。
   </div>
 
   <div id="browserBox" class="status hidden">正在读取最新正式版本并准备下载…</div>
@@ -57,10 +57,10 @@ h1{text-align:center;font-size:27px;margin:0;color:#153b75}
     <h2>微信内安装方法</h2>
     <div class="step"><div class="num">1</div><div>点击页面右上角“…”。</div></div>
     <div class="step"><div class="num">2</div><div>选择“在浏览器打开”或“用其他应用打开”。</div></div>
-    <div class="step"><div class="num">3</div><div>进入华为、荣耀、小米、OPPO、vivo 系统浏览器，或 Chrome / Edge 后，APK 将自动开始下载。</div></div>
+    <div class="step"><div class="num">3</div><div>进入华为、荣耀、小米、OPPO、vivo 系统浏览器，或 Chrome / Edge 后，页面会正常显示并准备最新版 APK；如未自动下载，请点击下载按钮。</div></div>
   </section>
 
-  <div class="small">Android 与微信会保留必要的安全确认。正常浏览器中，本页会自动读取并下载最新正式版 APK。</div>
+  <div class="small">Android 与微信会保留必要的安全确认。正常浏览器中，本页会自动读取最新正式版；自动下载未触发时，请点击“立即下载小额易贷”。</div>
 </main></div>
 <script>
 (function(){
@@ -91,16 +91,27 @@ h1{text-align:center;font-size:27px;margin:0;color:#153b75}
   fetch('https://yangxiukun3-cloud.github.io/aoshu-data-dashboard/download/release.json?ts='+Date.now(),{cache:'no-store'})
     .then(function(r){if(!r.ok)throw new Error('release');return r.json()})
     .then(function(m){
-      if(!m||!m.apk||!/^[A-Za-z0-9._-]+$/.test(m.apk))throw new Error('meta');
+      if(!m||!m.apk||!/^[^\\/?#]+\\.apk$/i.test(String(m.apk)))throw new Error('meta');
       var version=String(m.version||'current').replace(/^v/i,'');
       ver.textContent='v'+version;
-      var apk='https://yangxiukun3-cloud.github.io/aoshu-data-dashboard/download/'+m.apk+'?v='+encodeURIComponent(version);
+      var apk='https://yangxiukun3-cloud.github.io/aoshu-data-dashboard/download/'+encodeURIComponent(String(m.apk))+'?v='+encodeURIComponent(version);
       btn.href=apk;
+      btn.setAttribute('download',String(m.apk));
       btn.classList.remove('hidden');
-      document.getElementById('browserBox').innerHTML='<b>已进入可下载安装环境。</b><br>最新正式版已准备完成，正在自动开始下载。';
+      document.getElementById('browserBox').innerHTML='<b>已进入可下载安装环境。</b><br>最新正式版已准备完成。页面会保持显示；如未自动下载，请点击下方按钮。';
       if(!started){
         started=true;
-        setTimeout(function(){location.href=apk},700);
+        setTimeout(function(){
+          try{
+            var a=document.createElement('a');
+            a.href=apk;
+            a.download=String(m.apk);
+            a.style.display='none';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(function(){a.remove()},1200);
+          }catch(e){}
+        },900);
       }
     })
     .catch(function(){
