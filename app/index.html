@@ -53,10 +53,11 @@
   if(embedded){document.getElementById('wxStatus').classList.remove('hidden');return;}
   document.getElementById('browserStatus').classList.remove('hidden');
   fetch('../download/release.json?ts='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('release');return r.json()}).then(function(m){
-    if(!m||!m.apk||!/^[A-Za-z0-9._-]+$/.test(m.apk))throw new Error('meta');
+    if(!m||!m.apk||!/^[^\\/?#]+\\.apk$/i.test(String(m.apk)))throw new Error('meta');
     if(m.version)document.getElementById('version').textContent='v'+String(m.version).replace(/^v/i,'');
     var btn=document.getElementById('installBtn');
-    btn.href=new URL('../download/'+m.apk,location.href).href+'?v='+encodeURIComponent(m.version||'current');
+    btn.href=new URL('../download/'+encodeURIComponent(String(m.apk)),location.href).href+'?v='+encodeURIComponent(m.version||'current');
+    btn.setAttribute('download',String(m.apk));
     btn.classList.remove('hidden');
     document.getElementById('browserStatus').innerHTML='<b>已进入可下载安装环境。</b><br>点击下方按钮即可下载安装 Android 正式版。';
   }).catch(function(){document.getElementById('browserStatus').textContent='正式版本信息暂时读取失败，请稍后刷新本页面。';});
