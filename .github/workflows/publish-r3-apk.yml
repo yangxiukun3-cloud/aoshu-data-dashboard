@@ -22,8 +22,8 @@ jobs:
           APK="$(find /tmp/r3 -maxdepth 2 -type f -name '*.apk' | head -n 1)"
           test -n "$APK"
           echo "26725aa9cad271d3ad18b62d8400534d080e34a47b9925adaf3a9878fa38f534  $APK" | sha256sum -c -
-          unzip -p "$APK" assets/app.js | ! grep -E '特色贷|SPECIAL_LOAN|view-special|specialEntry|submitSpecialLoan'
-          unzip -p "$APK" assets/index.html | ! grep -E '特色贷|SPECIAL_LOAN|view-special|specialEntry|submitSpecialLoan'
+          if unzip -p "$APK" assets/app.js | grep -E '特色贷|SPECIAL_LOAN|view-special|specialEntry|submitSpecialLoan'; then exit 1; fi
+          if unzip -p "$APK" assets/index.html | grep -E '特色贷|SPECIAL_LOAN|view-special|specialEntry|submitSpecialLoan'; then exit 1; fi
           mkdir -p download
           cp "$APK" "download/小额易贷.apk"
           cp "$APK" download/xiaoe-loan.apk
